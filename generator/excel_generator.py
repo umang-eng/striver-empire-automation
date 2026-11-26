@@ -63,8 +63,8 @@ def generate_excel_report(
 
         # Header row (Row 1) — bright green background, black bold Arial text
         ws.append(COLUMNS)
-        ws.row_dimensions[1].height = 24
-        header_font = Font(name="Arial", size=10, bold=True, color="000000")
+        ws.row_dimensions[1].height = 26
+        header_font = Font(name="Arial", size=11, bold=True, color="000000")
         data_font = Font(name="Arial", size=10, color="000000")
 
         max_row = max(1, len(summary.records) + 1)

@@ -85,12 +85,14 @@ def _build_table(
 ) -> Table:
     """Build a ReportLab Table containing ONLY the 7 required columns and product records."""
     leading = max(font_size * 1.15, font_size + 0.8)
+    header_font_size = round(font_size + (1.0 if font_size >= 6.5 else 0.5), 2)
+    header_leading = max(header_font_size * 1.15, header_font_size + 0.8)
 
     header_style = ParagraphStyle(
         "TableHeader",
         fontName=bold_font,
-        fontSize=font_size,
-        leading=leading,
+        fontSize=header_font_size,
+        leading=header_leading,
         textColor=colors.black,
         alignment=1,
     )
