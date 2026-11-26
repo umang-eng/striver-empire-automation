@@ -227,11 +227,19 @@ export default function HomePage() {
   const showFailed = activeTask && activeTask.status === "failed";
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-between">
+    <div
+      className="relative min-h-screen flex flex-col justify-between"
+      onContextMenu={(e) => {
+        if ((e.target as HTMLElement)?.tagName === "VIDEO") {
+          e.preventDefault();
+        }
+      }}
+    >
       <BackgroundVideo />
-      <Header backendOnline={backendOnline} />
+      <div className="relative z-10 flex flex-col justify-between min-h-screen">
+        <Header backendOnline={backendOnline} />
 
-      <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 flex flex-col justify-center gap-7">
+        <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 flex flex-col justify-center gap-7">
         {/* Hero Headline */}
         <div className="text-center max-w-2xl mx-auto space-y-2.5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/60">
@@ -294,7 +302,8 @@ export default function HomePage() {
         </div>
       </main>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }

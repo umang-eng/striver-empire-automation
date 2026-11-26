@@ -10,28 +10,75 @@ export function BackgroundVideo() {
     const video = videoRef.current;
     if (!video) return;
 
-    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (motionQuery.matches) {
-      video.pause();
-      return;
-    }
+    // Ensure DOM properties required by Safari/Chrome for continuous muted autoplay
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.controls = false;
+    video.disablePictureInPicture = true;
+    video.setAttribute("controlsList", "nodownload nofullscreen noremoteplayback noplaybackrate");
+    video.setAttribute("disableRemotePlayback", "");
 
-    const attemptPlay = async () => {
-      try {
-        await video.play();
-      } catch {
-        // Autoplay blocked by browser policy; poster + ambient glass backdrop remains intact
+    const forcePlay = () => {
+      if (video.paused && !videoFailed) {
+        void video.play().catch(() => {
+          // Will retry on next interaction or canplay event
+        });
       }
     };
-    void attemptPlay();
-  }, []);
+
+    forcePlay();
+
+    const handlePause = () => {
+      // Enforce non-pausable live loop
+      window.requestAnimationFrame(forcePlay);
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        forcePlay();
+      }
+    };
+
+    video.addEventListener("canplay", forcePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", forcePlay);
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pointerdown", forcePlay, { passive: true });
+    window.addEventListener("keydown", forcePlay, { passive: true });
+
+    return () => {
+      video.removeEventListener("canplay", forcePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", forcePlay);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pointerdown", forcePlay);
+      window.removeEventListener("keydown", forcePlay);
+    };
+  }, [videoFailed]);
 
   return (
-    <div className="pointer-events-none fixed inset-0 -z-20 overflow-hidden bg-[#05070d]">
+    <div
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#05070d] select-none"
+      style={{
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
+      onContextMenu={(e) => e.preventDefault()}
+      onDragStart={(e) => e.preventDefault()}
+      aria-hidden="true"
+    >
       {!videoFailed ? (
         <video
           ref={videoRef}
-          className="h-full w-full scale-[1.01] object-cover object-center"
+          className="pointer-events-none h-full w-full scale-[1.01] object-cover object-center select-none"
+          style={{
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none",
+          }}
           src="/video/background.mp4"
           poster="/video/background-poster.jpg"
           autoPlay
@@ -39,24 +86,30 @@ export function BackgroundVideo() {
           loop
           playsInline
           preload="auto"
+          controls={false}
+          disablePictureInPicture
+          controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+          draggable={false}
+          tabIndex={-1}
           aria-hidden="true"
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
           onError={() => setVideoFailed(true)}
         />
       ) : (
         <div
-          className="h-full w-full bg-cover bg-center"
+          className="pointer-events-none h-full w-full bg-cover bg-center select-none"
           style={{ backgroundImage: "url('/video/background-poster.jpg')" }}
-          aria-hidden="true"
         />
       )}
 
-      {/* Translucent dark scrim & radial ambient contrast layer for Apple Liquid Glass legibility */}
+      {/* Protective transparent shield + translucent dark scrim for Liquid Glass readability */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/75"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/55 select-none"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.08),transparent_60%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.08),transparent_60%)] select-none"
         aria-hidden="true"
       />
     </div>
