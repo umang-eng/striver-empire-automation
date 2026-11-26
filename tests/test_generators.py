@@ -1,4 +1,4 @@
-"""Unit tests for green-header Excel and strictly single-page table-only PDF generation."""
+"""Unit tests for Excel and strictly single-page table-only PDF generation."""
 
 from datetime import datetime
 from decimal import Decimal
@@ -8,7 +8,7 @@ from openpyxl import load_workbook
 
 from core.logger import setup_logging
 from core.models import ExtractionSummary, ParsedTask, ProductRecord
-from generator import COLUMNS
+from generator import COLUMNS, pick_random_header_color, resolve_header_color
 from generator.excel_generator import generate_excel_report
 from generator.pdf_generator import generate_pdf_report
 
@@ -48,26 +48,49 @@ def _count_pdf_pages(pdf_bytes: bytes) -> int:
     return len(re.findall(rb"/Type\s*/Page(?!s)\b", pdf_bytes))
 
 
-def test_excel_and_pdf_table_only_green_header_no_currency_symbols(tmp_path):
+def test_random_header_color_varies_and_is_readable():
+    colors_picked = {pick_random_header_color() for _ in range(12)}
+    assert len(colors_picked) > 1
+    for c in colors_picked:
+        assert re.fullmatch(r"#[0-9A-F]{6}", c)
+
+    # Configured static fallback works when randomize_header_color is disabled
+    static_color = resolve_header_color(
+        {"output": {"randomize_header_color": False, "header_bg_color": "#18B500"}}
+    )
+    assert static_color == "#18B500"
+
+
+def test_excel_and_pdf_table_only_randomized_header_no_currency_symbols(tmp_path):
     summary = _build_summary(count=3)
     settings = {
         "output": {
             "excel_currency_format": "0.00",
             "pdf_currency_prefix": "",
             "header_bg_color": "#18B500",
+            "randomize_header_color": True,
             "pdf_max_font_size": 9.5,
             "pdf_min_readable_font_size": 5.5,
         }
     }
 
-    xlsx_path = tmp_path / "Excel" / "Women_25_Percent_20261126_183001.xlsx"
-    pdf_path = tmp_path / "PDF" / "Women_25_Percent_20261126_183001.pdf"
+    xlsx_path1 = tmp_path / "Excel" / "Women_1.xlsx"
+    xlsx_path2 = tmp_path / "Excel" / "Women_2.xlsx"
+    pdf_path = tmp_path / "PDF" / "Women_1.pdf"
 
-    generate_excel_report(summary, xlsx_path, settings)
+    generate_excel_report(summary, xlsx_path1, settings)
+    generate_excel_report(summary, xlsx_path2, settings)
     generate_pdf_report(summary, pdf_path, settings)
 
-    # Excel checks: strictly 1 sheet, 7 columns, green header, NO currency symbols or commas
-    wb = load_workbook(xlsx_path)
+    # Verify repeated generation produces randomized header fills
+    observed_fills = set()
+    for idx in range(5):
+        p = tmp_path / "Excel" / f"rand_{idx}.xlsx"
+        generate_excel_report(summary, p, settings)
+        observed_fills.add(load_workbook(p)["Products"].cell(1, 1).fill.start_color.rgb)
+    assert len(observed_fills) > 1
+
+    wb = load_workbook(xlsx_path1)
     assert wb.sheetnames == ["Products"]
     ws = wb["Products"]
     assert ws.max_row == 4
@@ -82,7 +105,6 @@ def test_excel_and_pdf_table_only_green_header_no_currency_symbols(tmp_path):
         "Size",
         "Type",
     ]
-    assert ws.cell(row=1, column=1).fill.start_color.rgb.endswith("18B500")
     assert ws.cell(row=1, column=1).font.bold is True
     assert ws.freeze_panes == "A2"
     assert ws.auto_filter.ref == "A1:G4"
@@ -96,7 +118,6 @@ def test_excel_and_pdf_table_only_green_header_no_currency_symbols(tmp_path):
     assert ws.cell(row=2, column=6).value == "M, L"
     assert ws.cell(row=2, column=7).value == "Shirt's"
 
-    # PDF checks: strictly 1 page
     pdf_bytes = pdf_path.read_bytes()
     assert pdf_bytes.startswith(b"%PDF")
     assert _count_pdf_pages(pdf_bytes) == 1
@@ -110,6 +131,7 @@ def test_pdf_large_dataset_fits_single_page_with_warning(tmp_path):
         "output": {
             "pdf_currency_prefix": "",
             "header_bg_color": "#18B500",
+            "randomize_header_color": True,
             "pdf_max_font_size": 9.5,
             "pdf_min_readable_font_size": 5.5,
         }

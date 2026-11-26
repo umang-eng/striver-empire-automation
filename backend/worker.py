@@ -19,6 +19,7 @@ from core.exceptions import (
     StriverAutomationError,
 )
 from core.models import ExtractionSummary, ParsedTask
+from generator import resolve_header_color
 from generator.excel_generator import generate_excel_report
 from generator.pdf_generator import generate_pdf_report
 from processor.message_parser import build_output_stem, resolve_filename_category_label
@@ -237,6 +238,7 @@ class TaskRunner:
             if policy == "prompt":
                 policy = "number"  # Non-interactive worker must never block or silently overwrite
             excel_path, pdf_path = self._unique_local_paths(task, display_category, policy=policy)
+            run_header_color = resolve_header_color(self.settings)
 
             self.job_store.update_job(
                 task_id,
@@ -246,7 +248,7 @@ class TaskRunner:
                 products_extracted=len(records),
                 failed_products=len(failures),
             )
-            generate_excel_report(summary, excel_path, self.settings)
+            generate_excel_report(summary, excel_path, self.settings, header_color=run_header_color)
 
             self.job_store.update_job(
                 task_id,
@@ -254,7 +256,9 @@ class TaskRunner:
                 stage_index=10,
                 progress_percent=94,
             )
-            generate_pdf_report(summary, pdf_path, self.settings, logger=self.logger)
+            generate_pdf_report(
+                summary, pdf_path, self.settings, logger=self.logger, header_color=run_header_color
+            )
 
             self.job_store.update_job(
                 task_id,

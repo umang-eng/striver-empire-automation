@@ -18,6 +18,7 @@ from core.exceptions import (
 )
 from core.logger import setup_logging
 from core.models import ExtractionSummary, ParsedTask
+from generator import resolve_header_color
 from generator.excel_generator import generate_excel_report
 from generator.pdf_generator import generate_pdf_report
 from processor.message_parser import (
@@ -196,8 +197,13 @@ def run_task(
     excel_path, pdf_path = resolve_output_paths(
         excel_dir, pdf_dir, stem, policy=policy, logger=logger
     )
-    generated_excel = generate_excel_report(summary, excel_path, settings)
-    generated_pdf = generate_pdf_report(summary, pdf_path, settings, logger=logger)
+    run_header_color = resolve_header_color(settings)
+    generated_excel = generate_excel_report(
+        summary, excel_path, settings, header_color=run_header_color
+    )
+    generated_pdf = generate_pdf_report(
+        summary, pdf_path, settings, logger=logger, header_color=run_header_color
+    )
 
     logger.info("Generated Excel report: %s", generated_excel)
     logger.info("Generated PDF report:   %s", generated_pdf)

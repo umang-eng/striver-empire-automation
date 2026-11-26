@@ -17,7 +17,7 @@ from reportlab.platypus import Paragraph, Table, TableStyle
 
 from core.exceptions import FileGenerationError
 from core.models import ExtractionSummary, ProductRecord
-from generator import COLUMNS
+from generator import COLUMNS, resolve_header_color
 
 _ARIAL_REGULAR = "/System/Library/Fonts/Supplemental/Arial.ttf"
 _ARIAL_BOLD = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
@@ -155,16 +155,17 @@ def generate_pdf_report(
     output_path: str | Path,
     settings: dict[str, Any],
     logger: Optional[logging.Logger] = None,
+    header_color: Optional[str] = None,
 ) -> Path:
-    """Write ONLY the 7-column green-header product table onto strictly ONE landscape PDF page."""
+    """Write ONLY the 7-column product table onto strictly ONE landscape PDF page."""
     try:
         target = Path(output_path)
         target.parent.mkdir(parents=True, exist_ok=True)
 
         out_cfg = settings.get("output", {})
         currency_prefix = str(out_cfg.get("pdf_currency_prefix", ""))
-        header_hex = str(out_cfg.get("header_bg_color", "#18B500"))
-        header_color = colors.HexColor(header_hex)
+        header_hex = resolve_header_color(settings, override_hex=header_color)
+        resolved_header_color = colors.HexColor(header_hex)
         max_font = float(out_cfg.get("pdf_max_font_size", 9.5))
         min_readable_font = float(out_cfg.get("pdf_min_readable_font_size", 5.5))
 
@@ -200,7 +201,7 @@ def generate_pdf_report(
                 font_size=font_size,
                 h_pad=h_pad,
                 v_pad=v_pad,
-                header_color=header_color,
+                header_color=resolved_header_color,
                 currency_prefix=currency_prefix,
                 regular_font=regular_font,
                 bold_font=bold_font,
@@ -226,7 +227,7 @@ def generate_pdf_report(
                 font_size=min_readable_font,
                 h_pad=2.0,
                 v_pad=1.0,
-                header_color=header_color,
+                header_color=resolved_header_color,
                 currency_prefix=currency_prefix,
                 regular_font=regular_font,
                 bold_font=bold_font,

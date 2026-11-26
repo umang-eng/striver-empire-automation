@@ -39,6 +39,7 @@
     "excel_currency_format": "0.00",
     "pdf_currency_prefix": "",
     "header_bg_color": "#18B500",
+    "randomize_header_color": true,
     "pdf_max_font_size": 9.5,
     "pdf_min_readable_font_size": 5.5
   },

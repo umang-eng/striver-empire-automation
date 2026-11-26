@@ -1,7 +1,7 @@
 """Generate clean green-header Excel product tables using OpenPyXL."""
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
@@ -9,7 +9,7 @@ from openpyxl.utils import get_column_letter
 
 from core.exceptions import FileGenerationError
 from core.models import ExtractionSummary
-from generator import COLUMNS
+from generator import COLUMNS, resolve_header_color
 
 _ZEBRA_FILL = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
 _WHITE_FILL = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
@@ -46,15 +46,16 @@ def generate_excel_report(
     summary: ExtractionSummary,
     output_path: str | Path,
     settings: dict[str, Any],
+    header_color: Optional[str] = None,
 ) -> Path:
-    """Write ONLY the 7-column product table to Excel matching the green-header layout."""
+    """Write ONLY the 7-column product table to Excel with bold black header text."""
     try:
         target = Path(output_path)
         target.parent.mkdir(parents=True, exist_ok=True)
 
         out_cfg = settings.get("output", {})
         currency_fmt = out_cfg.get("excel_currency_format", "0.00")
-        header_hex = str(out_cfg.get("header_bg_color", "#18B500")).lstrip("#")
+        header_hex = resolve_header_color(settings, override_hex=header_color).lstrip("#")
         header_fill = PatternFill(start_color=header_hex, end_color=header_hex, fill_type="solid")
 
         wb = Workbook()
