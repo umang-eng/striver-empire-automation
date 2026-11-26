@@ -1,0 +1,23 @@
+# Exclude Python worker, local venv, tests, and generated output from Vercel upload
+.venv/
+__pycache__/
+.pytest_cache/
+tests/
+output/
+logs/
+data/
+backend/
+core/
+processor/
+scraper/
+generator/
+config/
+main.py
+Dockerfile
+render.yaml
+pytest.ini
+requirements.txt
+*.py
+*.log
+*.db
+.DS_Store

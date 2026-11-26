@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 
+export function isWorkerConfigured(): boolean {
+  if (process.env.PYTHON_WORKER_URL?.trim()) {
+    return true;
+  }
+  // In local non-Vercel dev, default to local uvicorn port 8000
+  return !process.env.VERCEL;
+}
+
 export function getBackendBaseUrl(): string {
   return (process.env.PYTHON_WORKER_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 }

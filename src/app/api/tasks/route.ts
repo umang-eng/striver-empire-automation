@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBackendBaseUrl, getBackendHeaders, proxyJsonResponse } from "@/lib/backendProxy";
+import {
+  getBackendBaseUrl,
+  getBackendHeaders,
+  isWorkerConfigured,
+  proxyJsonResponse,
+} from "@/lib/backendProxy";
 import { validateTaskMessage } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
@@ -16,6 +21,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { detail: validation.error || "Invalid task message." },
       { status: 422 }
+    );
+  }
+
+  if (!isWorkerConfigured()) {
+    return NextResponse.json(
+      {
+        detail:
+          "Python Playwright worker is not configured yet. Set PYTHON_WORKER_URL and BACKEND_API_KEY in Vercel Environment Variables.",
+      },
+      { status: 503 }
     );
   }
 
