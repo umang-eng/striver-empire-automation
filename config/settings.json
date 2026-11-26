@@ -1,0 +1,123 @@
+{
+  "site": {
+    "base_url": "https://striverempire.com",
+    "category_list_prefix": "/product/list/",
+    "product_detail_prefix": "/product/detail/"
+  },
+  "browser": {
+    "headless": true,
+    "timeout_ms": 30000,
+    "navigation_timeout_ms": 45000,
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  },
+  "scraping": {
+    "request_delay_seconds": 0.4,
+    "max_retries": 3,
+    "retry_backoff_seconds": 1.5,
+    "max_pagination_pages": 100,
+    "load_more_wait_ms": 2000,
+    "prefer_playwright": true,
+    "block_keywords": [
+      "cf-browser-verification",
+      "verify you are human",
+      "attention required! | cloudflare",
+      "just a moment...",
+      "g-recaptcha",
+      "hcaptcha",
+      "access denied"
+    ]
+  },
+  "output": {
+    "base_dir": "output",
+    "excel_dir": "output/Excel",
+    "pdf_dir": "output/PDF",
+    "duplicate_file_policy": "prompt",
+    "excel_currency_format": "0.00",
+    "pdf_currency_prefix": "",
+    "header_bg_color": "#18B500",
+    "pdf_max_font_size": 9.5,
+    "pdf_min_readable_font_size": 5.5
+  },
+  "logging": {
+    "level": "INFO",
+    "log_dir": "logs",
+    "file_name": "striver_automation.log"
+  },
+  "main_categories": {
+    "mens": {
+      "label": "Men's",
+      "url": "/product/list/mens",
+      "aliases": ["men", "mens", "men's"]
+    },
+    "womens": {
+      "label": "Women's",
+      "url": "/product/list/womens",
+      "aliases": ["women", "womens", "women's"]
+    },
+    "beauty-and-cosmetics": {
+      "label": "Beauty and cosmetics",
+      "url": "/product/list/beauty-and-cosmetics",
+      "aliases": ["beauty and cosmetics", "beauty & cosmetics", "beauty"]
+    },
+    "accessories": {
+      "label": "Accessories",
+      "url": "/product/list/accessories",
+      "aliases": ["accessories", "accessory"]
+    },
+    "winter": {
+      "label": "Winter",
+      "url": "/product/list/winter",
+      "aliases": ["winter"]
+    },
+    "home-living": {
+      "label": "Home & living",
+      "url": "/product/list/home-living",
+      "aliases": ["home and living", "home & living", "home living"]
+    }
+  },
+  "categories": {
+    "accessories": "/product/list/accessories",
+    "basket jacket": "/product/list/basket-jacket",
+    "beauty and cosmetic": "/product/list/beauty-and-cosmetic",
+    "beauty and cosmetics": "/product/list/beauty-and-cosmetics",
+    "bedsheets": "/product/list/bedsheets",
+    "belts": "/product/list/belts",
+    "blazers": "/product/list/blazers",
+    "cap": "/product/list/cap",
+    "co-ord sets": "/product/list/co-ord-sets",
+    "foot mat": "/product/list/foot-mat",
+    "formal pant": "/product/list/formal-pant",
+    "formal pants": "/product/list/formal-pants",
+    "high neck": "/product/list/high-neck",
+    "home and living": "/product/list/home-living",
+    "home & living": "/product/list/home-living",
+    "hoodie": "/product/list/hoodie",
+    "jacket": "/product/list/jacket",
+    "jeans": "/product/list/jeans",
+    "lower": "/product/list/lower",
+    "men": "/product/list/mens",
+    "mens": "/product/list/mens",
+    "men's": "/product/list/mens",
+    "sando": "/product/list/sando",
+    "shirt": "/product/list/shirt",
+    "shirts": "/product/list/shirts",
+    "shirt's": "/product/list/shirts",
+    "shorts": "/product/list/shorts",
+    "socks": "/product/list/socks",
+    "sweater": "/product/list/sweater",
+    "t-shirt": "/product/list/t-shirt",
+    "t-shirts": "/product/list/t-shirt",
+    "ties": "/product/list/ties",
+    "tops": "/product/list/tops",
+    "towels": "/product/list/towels",
+    "winter": "/product/list/winter",
+    "women": "/product/list/womens",
+    "women jeans": "/product/list/women-jeans",
+    "womens": "/product/list/womens",
+    "women's": "/product/list/womens"
+  }
+}
