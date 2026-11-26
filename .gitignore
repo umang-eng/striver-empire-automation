@@ -24,5 +24,11 @@ node_modules/
 out/
 next-env.d.ts
 
+# Android
+android-app/.gradle/
+android-app/app/build/
+android-app/build/
+android-app/local.properties
+
 # macOS
 .DS_Store
